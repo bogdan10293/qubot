@@ -41,7 +41,7 @@ function determineMimeType(fileName: string): string {
   }
 }
 
-export const ingestDocumentToPinecone = async (fileBuffer: Buffer, fileName: string, namespace: string) => {
+export const ingestDocumentToPinecone = async (fileBuffer: Buffer, fileName: string, namespace: string, fileId: string) => {
   try {
     /*load raw docs from the all files in the directory */
 
@@ -79,6 +79,7 @@ export const ingestDocumentToPinecone = async (fileBuffer: Buffer, fileName: str
 
     rawDocs.forEach(doc => {
       doc.metadata.source = fileName;  // fileName is already available in your current code
+      doc.metadata.sourceId = fileId;
     });
 
     console.log(rawDocs)

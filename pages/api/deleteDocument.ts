@@ -7,10 +7,10 @@ import path from 'path';
 const pinecone = await initPinecone();
 const index = pinecone.Index(PINECONE_INDEX_NAME); // Replace with your actual index name
 
-async function findVectorIdsBySource(sourceFilename: string, namespace: string): Promise<string[]> {
+async function findVectorIdsBySource(fileId: string, namespace: string): Promise<string[]> {
 
     const defaultVector = new Array(1536).fill(0.1);
-    const fullSourcePath = path.join(__dirname, '../../../../docs', sourceFilename);
+    // const fullSourcePath = path.join(__dirname, '../../../../docs', sourceFilename);
 
     const queryRequest = {
       // We don't need a vector for metadata-only queries
@@ -19,7 +19,7 @@ async function findVectorIdsBySource(sourceFilename: string, namespace: string):
       includeValues: true,
       includeMetadata: true,
       filter: {
-        source: { $eq: sourceFilename },
+        sourceId: { $eq: fileId },
       },
       namespace: namespace,
     };
@@ -36,15 +36,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(405).json({ error: 'Method not allowed' });
     }
   
-    const { fileName, namespace } = req.body;
+    const { fileId, namespace } = req.body;
   
-    if (!fileName || !namespace) {
-      return res.status(400).json({ error: 'Filename or namespace is required' });
+    if (!fileId || !namespace) {
+      return res.status(400).json({ error: 'FileId or namespace is required' });
     }
   
     try {
       // Assuming you have a function that can find vector IDs based on the source field in metadata
-      const vectorIds = await findVectorIdsBySource(fileName, namespace);
+      const vectorIds = await findVectorIdsBySource(fileId, namespace);
   
       if (vectorIds.length > 0) {
         await index.delete1({

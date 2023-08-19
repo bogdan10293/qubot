@@ -24,9 +24,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     const file = files.file[0];
     const namespace = fields.namespace[0];
+    const fileId = fields.fileId && fields.fileId[0];
 
-    if (!file || !namespace) {
-      return res.status(400).json({ error: 'File or namespace missing' });
+
+    if (!file || !namespace || !fileId) {
+      return res.status(400).json({ error: 'File, fileId or namespace missing' });
     }
 
     // // Read the file buffer
@@ -35,7 +37,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const fileBuffer = await fs.promises.readFile(file.filepath);
 
     try {
-      await ingestDocumentToPinecone(fileBuffer, file.originalFilename!, namespace as string);
+      await ingestDocumentToPinecone(fileBuffer, file.originalFilename!, namespace as string, fileId);
       res.status(200).json({ message: 'Ingestion successful' });
     } catch (error) {
       res.status(500).json({ error: 'Failed to ingest document' });
